@@ -17,8 +17,8 @@ Program::Program() {
         });
 
     for (int i = 0; i < 30; i++) {
-        float x = 250 + 50 * i;
-        float y = 200 + 50 * i;
+        float x = 250 + 50 * (i%10); //enemy positioning
+        float y = 200 + 50 * (i/10);
 
         Enemy::enemies.push_back(std::pair<std::pair<float, float>, Enemy*> {
             std::pair<float, float>{x, y}, 
@@ -55,7 +55,18 @@ void Program::Update() {
             }
         }
 
-        for (Projectile& p : Projectile::projectiles) { 
+        for (Projectile& p : Projectile::projectiles) {   //projectile
+            if ( HitBox::Collision(player->hitBox, p.getHitBox()) && p.ID != 0) {
+                Animation::animations.push_back(
+                    Animation(player->position.first, player->position.second, 16, 0, 33, 34, 30 ,30, 3, ImageManager::SpriteSheet)
+                    
+                );
+                PlaySound(SoundManager::gameOver);
+                Projectile::projectiles.clear();
+                player->position.first = GetScreenWidth() / 2 - 15;
+                pauseFrames = 120;
+                lives--;
+            }
             p.update(); 
 
         }
@@ -160,6 +171,7 @@ void Program::KeyInputs() {
 
     if (startup && IsKeyPressed(KEY_ENTER)) {
         startup = false;
+        
     }
 
     if (!startup && !paused && !gameOver && pauseFrames <= 0) player->keyInputs();
@@ -187,4 +199,24 @@ void Program::Reset() {
     count = 0;
     delay = 0;
     lives = 3;
+
+    Enemy::enemies.push_back(std::pair<std::pair<float, float>, Enemy*> {  //re-add enemies
+            std::pair<float, float>{350, 150}, 
+            new SpEnemy(350, 150)
+        });
+
+    Enemy::enemies.push_back(std::pair<std::pair<float, float>, Enemy*> {
+            std::pair<float, float>{600, 150}, 
+            new SpEnemy(600, 150)
+        });
+
+    for (int i = 0; i < 30; i++) {
+        float x = 250 + 50 * (i%10); //enemy positioning
+        float y = 200 + 50 * (i/10);
+
+        Enemy::enemies.push_back(std::pair<std::pair<float, float>, Enemy*> {
+            std::pair<float, float>{x, y}, 
+            new StdEnemy(x, y)
+        });
+    }
 }
