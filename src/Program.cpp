@@ -40,6 +40,14 @@ void Program::Update() {
         ManageEnemyRespawns();
         player->update();
 
+        int scoreForExtraLife = score /1000;
+
+        while(extraLife < scoreForExtraLife){
+            if(lives < 5){
+                lives++;
+            } extraLife++;
+        }
+
         for (std::pair<std::pair<float, float>, Enemy*> p : Enemy::enemies) {
             if (p.second && HitBox::Collision(player->hitBox, p.second->hitBox)) {
                 Animation::animations.push_back(
@@ -58,8 +66,6 @@ void Program::Update() {
         for (Projectile& p : Projectile::projectiles) { 
             p.update(); 
 
-            if (p.ID !=0 && HitBox::Collision(player -> hitBox, p.hitBox)){
-                PlayerReset();
             }
         }
 
@@ -67,10 +73,11 @@ void Program::Update() {
         Projectile::CleanProjectiles();
         Projectile::ProjectileCollision();
     }
-}
+
 
 void Program::Draw() {
     background.Draw();
+    DrawText(TextFormat("Score: %i", score), GetScreenWidth() - 200, 10, 20, WHITE);
     if (pauseFrames <= 0 && !gameOver) player->draw();
     for (Animation& a : Animation::animations) a.draw();
 
@@ -79,7 +86,6 @@ void Program::Draw() {
                    Rectangle{10.0f + i * 30, GetScreenHeight() - 30.0f, 20, 20}, 
                    Vector2{0, 0}, 0, WHITE);
     }
-
 
     for (Projectile p : Projectile::projectiles) p.draw();
     for (std::pair<std::pair<float, float>, Enemy*>& p : Enemy::enemies) if (p.second) p.second->draw();
@@ -93,8 +99,24 @@ void Program::ManageEnemyRespawns() {
     delay = std::max(delay - 1, 0);
 
     respawnCooldown -= 1;
+
+    int respawnReset = 1080;
+
+    if (score >= 4000) {
+        respawnReset = 200;
+    }
+    else if (score >= 3000) {
+        respawnReset = 300;
+    }
+    else if (score >= 2000) {
+        respawnReset = 400;
+    }
+    else if (score >= 1000) {
+        respawnReset = 500;
+    }
+
     if (respawnCooldown <= 0) {
-        respawnCooldown = 1080;
+        respawnCooldown = respawnReset;
         for (std::pair<std::pair<float, float>, Enemy*>& p : Enemy::enemies) {
             if (!p.second && p.first.second != 150) {
                 int eType = GetRandomValue(1, 3);
@@ -155,6 +177,7 @@ void Program::KeyInputs() {
     if (!paused && !startup && IsKeyPressed('O')) gameOver = !gameOver;
     if (!gameOver && !paused && IsKeyPressed('I')) startup = !startup;
     if (IsKeyPressed('H')) HitBox::drawHitbox = !HitBox::drawHitbox;
+    if (IsKeyPressed('K')) score += 500;
     
     if (gameOver && IsKeyPressed(KEY_ENTER)) {
         gameOver = false;
@@ -190,4 +213,6 @@ void Program::Reset() {
     count = 0;
     delay = 0;
     lives = 3;
+    score = 0;
+    extraLife = 0;
 }
