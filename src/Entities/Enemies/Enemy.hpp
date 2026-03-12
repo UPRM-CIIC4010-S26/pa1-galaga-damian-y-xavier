@@ -13,6 +13,7 @@ class Enemy {
         bool spawning = false;
         bool frame = false;
         int frameCooldown = 30;
+        int score = 0;
         
     public:
         int health = 1;
@@ -22,6 +23,8 @@ class Enemy {
         inline static float direction = 0.5;
         inline static int directionChange = 100;
         inline static std::vector<std::pair<std::pair<float, float>, Enemy*>> enemies;
+
+        int getScore() const { return score; }
 
         Enemy() {}
 
@@ -44,7 +47,7 @@ class Enemy {
              }
         }
 
-        static void ManageEnemies(HitBox target) {
+        static void ManageEnemies(HitBox target , int& score) {
             for (std::pair<std::pair<float, float>, Enemy*>& p : Enemy::enemies) {
                 p.first.first += (p.first.first == 0) ? 0 : direction;
                 if (p.second) {
@@ -54,10 +57,13 @@ class Enemy {
                         if (p2.ID != 1 && HitBox::Collision(p.second->hitBox, p2.getHitBox())) {
                             p.second->health--;
                             p2.del = true;
+                            PlaySound(SoundManager::hit);
                         }
                     }
 
                     if (p.second->health <= 0) {
+                        score += p.second->getScore();
+                        PlaySound(SoundManager::dead);
                         Animation::animations.push_back(
                             Animation(p.second->position.first, p.second->position.second, 155, 0, 33, 33, 30, 30, 4, ImageManager::SpriteSheet)
                         );

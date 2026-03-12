@@ -17,11 +17,7 @@ Program::Program() {
         });
 
     for (int i = 0; i < 30; i++) {
-<<<<<<< HEAD
-        float x = 250 + 50 * (i%10);
-=======
         float x = 250 + 50 * (i%10); //enemy positioning
->>>>>>> Phase1
         float y = 200 + 50 * (i/10);
 
         Enemy::enemies.push_back(std::pair<std::pair<float, float>, Enemy*> {
@@ -39,7 +35,7 @@ void Program::Update() {
     pauseFrames = std::max(pauseFrames - 1, 0);
 
     if (!startup && !paused && !gameOver && pauseFrames <= 0) {
-        Enemy::ManageEnemies(player->hitBox);
+        Enemy::ManageEnemies(player->hitBox, score);
         StdEnemy::attackReset();
         ManageEnemyRespawns();
         player->update();
@@ -229,10 +225,8 @@ void Program::Reset() {
     count = 0;
     delay = 0;
     lives = 3;
-<<<<<<< HEAD
     score = 0;
     extraLife = 0;
-=======
 
     Enemy::enemies.push_back(std::pair<std::pair<float, float>, Enemy*> {  //re-add enemies
             std::pair<float, float>{350, 150}, 
@@ -253,5 +247,4 @@ void Program::Reset() {
             new StdEnemy(x, y)
         });
     }
->>>>>>> Phase1
 }
